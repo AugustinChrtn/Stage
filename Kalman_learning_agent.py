@@ -5,11 +5,13 @@ class Kalman_agent():
     def __init__(self, environment, gamma=0.8, variance_ob=1,variance_tr=0.01):
         self.environment = environment
         self.KF_table_mean = dict()
-        self.KF_table_variance = dict() # Dictonaries to store all mean/variance
-        for x in range(environment.height): # Loop through all possible grid spaces, create sub-dictionary for each
+        self.KF_table_variance = dict()
+        self.counter=dict()
+        for x in range(environment.height):
             for y in range(environment.width):
                 self.KF_table_mean[(x,y)] = {'UP':0, 'DOWN':0, 'LEFT':0, 'RIGHT':0}
                 self.KF_table_variance[(x,y)] = {'UP':1, 'DOWN':1, 'LEFT':1, 'RIGHT':1}
+                self.counter[(x,y)]={'UP':0, 'DOWN':0, 'LEFT':0, 'RIGHT':0}
         self.gamma = gamma
         self.variance_ob=variance_ob
         self.variance_tr=variance_tr
@@ -22,6 +24,7 @@ class Kalman_agent():
             dict_probas[move]=np.random.normal(get_mean[move],np.sqrt(get_variance[move]))
         dic_values=list(dict_probas.values())
         action = list(dict_probas.keys())[dic_values.index(max(dic_values))]
+        self.counter[self.environment.current_location][action]+=1
         return action
     
 

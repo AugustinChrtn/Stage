@@ -3,11 +3,12 @@ import numpy as np
 class Q_Agent():
     def __init__(self, environment, epsilon=0.01, alpha=0.26, gamma=0.7):
         self.environment = environment
-        self.q_table = dict() # Store all Q-values in dictionary of dictionaries 
-        for x in range(environment.height): # Loop through all possible grid spaces, create sub-dictionary for each
+        self.q_table = dict()
+        self.counter=dict()
+        for x in range(environment.height):
             for y in range(environment.width):
-                self.q_table[(x,y)] = {'UP':0, 'DOWN':0, 'LEFT':0, 'RIGHT':0} # Populate sub-dictionary with zero values for possible moves
-
+                self.q_table[(x,y)] = {'UP':0, 'DOWN':0, 'LEFT':0, 'RIGHT':0}
+                self.counter[(x,y)]={'UP':0, 'DOWN':0, 'LEFT':0, 'RIGHT':0}
         self.epsilon = epsilon
         self.alpha = alpha
         self.gamma = gamma
@@ -20,7 +21,8 @@ class Q_Agent():
         else:
             q_values_of_state = self.q_table[self.environment.current_location]
             maxValue = max(q_values_of_state.values())
-            action = np.random.choice([k for k, v in q_values_of_state.items() if v == maxValue])        
+            action = np.random.choice([k for k, v in q_values_of_state.items() if v == maxValue])
+        self.counter[self.environment.current_location][action]+=1
         return action
     
     def learn(self, old_state, reward, new_state, action):

@@ -9,10 +9,8 @@ from Q_learning_agent import Q_Agent
 def play(environment, agent, trials=500, max_steps_per_episode=1000, learn=True):
     reward_per_episode = []   
     for trial in range(trials):
-        cumulative_reward = 0
-        step = 0
-        game_over = False
-        while step < max_steps_per_episode and game_over != True: # Run until max steps or until game is finished
+        cumulative_reward, step, game_over= 0,0,False
+        while step < max_steps_per_episode and game_over != True:
             old_state = environment.current_location
             action = agent.choose_action() 
             reward , terminal = environment.make_step(action)
@@ -21,13 +19,13 @@ def play(environment, agent, trials=500, max_steps_per_episode=1000, learn=True)
                 agent.learn(old_state, reward, new_state, action)                
             cumulative_reward += reward
             step += 1            
-            if terminal == True : # If game is in terminal state, game over and start next trial
+            if terminal == True :
                 environment.__init__()
                 game_over = True                     
         reward_per_episode.append(cumulative_reward)
-    if type(agent).__name__=='Q_Agent': return reward_per_episode, agent.q_table
-    if type(agent).__name__=='Kalman_agent': return reward_per_episode, agent.KF_table_mean, agent.KF_table_variance
-    if type(agent).__name__=='Kalman_agent_parallels': return reward_per_episode,agent.KF_table_mean,agent.KF_table_variance,agent.KF_table_curiosity
+    if type(agent).__name__=='Q_Agent': return reward_per_episode, agent.counter, agent.q_table
+    if type(agent).__name__=='Kalman_agent': return reward_per_episode, agent.counter, agent.KF_table_mean, agent.KF_table_variance
+    if type(agent).__name__=='Kalman_agent_parallels': return reward_per_episode,agent.counter, agent.KF_table_mean,agent.KF_table_variance,agent.KF_table_curiosity
 
 
 #Search for the parameters that optimize the reward for each model after a given trial
@@ -91,11 +89,11 @@ def chosen_direction(table):
             decisions[i][j]=best
     return decisions
         
-def gradient_variance_min(table_variance):
+def gradient_variance_max(table_variance):
      precision=[[0 for i in range(5)] for j in range(5)]
      for i in range(5):
          for j in range(5):
-             min_variance=min(table_variance[i,j].values()) 
-             precision[i][j]=min_variance
+             max_variance=max(table_variance[i,j].values()) 
+             precision[i][j]=max_variance
      return precision
 
