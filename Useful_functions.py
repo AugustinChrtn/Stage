@@ -36,7 +36,7 @@ def find_best_triplet_Kalman():
             for variance_tr in [1/(10**i) for i in range(-2,2)]:
                 environment = State()
                 KA= Kalman_agent(environment,gamma/100,variance_ob,variance_tr)
-                reward_per_episode, table_mean, table_variance= play(environment, KA, trials=1000, learn=True)
+                reward_per_episode, counter_KA, table_mean, table_variance= play(environment, KA, trials=1000, learn=True)
                 best_triplet["gamma = "+str(gamma/100), "variance_ob = "+str(variance_ob),"variance_tr "+str(variance_tr)]=np.mean(reward_per_episode[500:])
                 v=list(best_triplet.values())
                 best = list(best_triplet.keys())[v.index(max(v))]
@@ -49,25 +49,26 @@ def find_best_triplet_Q_learning():
             for gamma in range(5,11):
                 environment = State()
                 QA= Q_Agent(environment,epsilon/100,alpha/100,gamma/10)
-                reward_per_episode, table= play(environment,QA, trials=1000, learn=True)
+                reward_per_episode, counter_QA, table= play(environment,QA, trials=1000, learn=True)
                 best_triplet["epsilon="+str(epsilon/100), "alpha="+str(alpha/100),"gamma="+str(gamma/10)]=np.mean(reward_per_episode[500:])
                 v=list(best_triplet.values())
                 best = list(best_triplet.keys())[v.index(max(v))]
     return best_triplet, best   
 
-def find_best_quatuor_Kalman_parallels():
-    best_quatuor=dict()
-    for gamma in range(70,96,5):
-        for variance_ob in [1/(10**i) for i in range(-2,0)]:
-            for variance_tr in [1/(10**i) for i in range(0,2)]:
-                for gamma_curiosity in range(1,5):
-                    environment = State()
-                    KAP= Kalman_agent_parallels(environment,gamma/100,variance_ob,variance_tr,gamma_curiosity/10)
-                    reward_per_episode, table_mean, table_variance,table_curiosity= play(environment, KAP, trials=1000, learn=True)
-                    best_quatuor["gamma = "+str(gamma/100), "variance_ob = "+str(variance_ob),"variance_tr "+str(variance_tr),"gamma_curiosity = "+str(gamma_curiosity/10)]=np.mean(reward_per_episode[500:])
-                    dic_values=list(best_quatuor.values())
-                    best_value = list(best_quatuor.keys())[dic_values.index(max(dic_values))]
-    return (best_quatuor,best_value)
+def find_best_five_Kalman_parallels():
+    best_five=dict()
+    for gamma in range(80,91,5):
+        for variance_ob in [10**i for i in range(0,2)]:
+            for variance_tr in [10**i for i in range(-2,0)]:
+                for gamma_curiosity in range(1,4):
+                    for curiosity_factor in [10**i for i in range(5)]:
+                        environment = State()
+                        KAP= Kalman_agent_parallels(environment,gamma/100,variance_ob,variance_tr,gamma_curiosity/10,curiosity_factor)
+                        reward_per_episode, counter_KAP,table_mean, table_variance,table_curiosity= play(environment, KAP, trials=1000, learn=True)
+                        best_five["gamma = "+str(gamma/100), "variance_ob = "+str(variance_ob),"variance_tr "+str(variance_tr),"gamma_curiosity = "+str(gamma_curiosity/10), "curiosity_factor = "+str(curiosity_factor)]=np.mean(reward_per_episode[500:])
+                        dic_values=list(best_five.values())
+                        best_value = list(best_five.keys())[dic_values.index(max(dic_values))]
+    return (best_five,best_value)
 
 
 
@@ -80,7 +81,7 @@ def display(d, indent=0):
         else:
             print('\t' * (indent+1) + str(value))
 
-def chosen_direction(table):
+def prefered_direction(table):
     decisions=[['NaN' for i in range(5)] for j in range(5)]
     for i in range(5):
         for j in range(5):

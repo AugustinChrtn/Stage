@@ -2,7 +2,7 @@ import numpy as np
 
 class Kalman_agent_parallels(): 
     
-    def __init__(self, environment, gamma=0.8, variance_ob=1,variance_tr=0.01,gamma_curiosity=0.5):
+    def __init__(self, environment, gamma=0.8, variance_ob=10,variance_tr=0.1,gamma_curiosity=0.3,curiosity_factor=10):
         self.environment = environment
         self.KF_table_mean = dict()
         self.KF_table_variance = dict()
@@ -18,6 +18,7 @@ class Kalman_agent_parallels():
         self.gamma_curiosity=gamma_curiosity
         self.variance_ob=variance_ob
         self.variance_tr=variance_tr
+        self.curiosity_factor=curiosity_factor
     
     def choose_action(self):
         get_mean=self.KF_table_mean[self.environment.current_location]
@@ -25,7 +26,7 @@ class Kalman_agent_parallels():
         get_curiosity=self.KF_table_curiosity[self.environment.current_location]
         dict_probas=dict()
         for move in ['UP','DOWN','LEFT','RIGHT']:
-            dict_probas[move]=np.random.normal(get_mean[move],np.sqrt(get_variance[move]))+np.random.normal(get_curiosity[move],np.sqrt(get_variance[move]))
+            dict_probas[move]=np.random.normal(get_mean[move],np.sqrt(get_variance[move]))+self.curiosity_factor*np.random.normal(get_curiosity[move],np.sqrt(get_variance[move]))
         dic_values=list(dict_probas.values())
         action = list(dict_probas.keys())[dic_values.index(max(dic_values))]
         self.counter[self.environment.current_location][action]+=1
