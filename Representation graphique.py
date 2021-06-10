@@ -104,5 +104,5 @@ grid[6][5]=1
 
 gridworld = Graphique(screen_size,cell_width, cell_height, cell_margin,init, grid)
 gridworld.show()
-pygame.time.delay(5000)
+pygame.time.delay(10000)
 pygame.quit()
