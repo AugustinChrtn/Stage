@@ -2,7 +2,7 @@ import numpy as np
 
 class Kalman_agent_softmax(): 
     
-    def __init__(self, environment, gamma=0.8, variance_ob=10,variance_tr=0.1,curiosity_factor=[1000 for i in range(1000)]+[0 for i in range(10000)]):
+    def __init__(self, environment, gamma=0.8, variance_ob=10,variance_tr=0.1,curiosity_factor=3):
         self.environment = environment
         self.KF_table_mean = dict()
         self.KF_table_variance = dict()
@@ -16,15 +16,12 @@ class Kalman_agent_softmax():
         self.variance_ob=variance_ob
         self.variance_tr=variance_tr
         self.curiosity_factor=curiosity_factor
-        self.sum_actions=0
     def choose_action(self):
-        self.sum_actions+=1
-        essai=self.sum_actions//25
         get_mean=self.KF_table_mean[self.environment.current_location]
         get_variance=self.KF_table_variance[self.environment.current_location]
         dict_probas=dict()
         for move in ['UP','DOWN','LEFT','RIGHT']:
-            dict_probas[move]=np.random.normal(get_mean[move],np.sqrt(get_variance[move]))+self.curiosity_factor[essai]*get_variance[move]
+            dict_probas[move]=np.random.normal(get_mean[move],np.sqrt(get_variance[move]))+(self.curiosity_factor*get_variance[move])
         dic_values=list(dict_probas.values())
         action = list(dict_probas.keys())[dic_values.index(max(dic_values))]
         self.counter[self.environment.current_location][action]+=1

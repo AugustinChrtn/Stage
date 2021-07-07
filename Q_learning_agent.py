@@ -1,7 +1,8 @@
 import numpy as np
+import random
 
 class Q_Agent():
-    def __init__(self, environment, epsilon=0.01, alpha=0.26, gamma=0.7):
+    def __init__(self, environment, epsilon=0.01, alpha=0.26, gamma=0.95,beta=1,exploration='softmax'):
         self.environment = environment
         self.q_table = dict()
         self.counter=dict()
@@ -12,18 +13,30 @@ class Q_Agent():
         self.epsilon = epsilon
         self.alpha = alpha
         self.gamma = gamma
+        self.exploration=exploration
+        self.beta=beta
         
     def choose_action(self):
         """Returns the optimal action from Q-Value table. Makes an exploratory random 
             action if a uniform random variable is lower than epsilon."""
-        if np.random.uniform(0,1) < self.epsilon:
-            action = np.random.choice(['UP','DOWN','LEFT','RIGHT'])
-        else:
+        if self.exploration=='e-greedy':
+            if np.random.uniform(0,1) < self.epsilon:
+                action = np.random.choice(['UP','DOWN','LEFT','RIGHT'])
+            else:
+                q_values_of_state = self.q_table[self.environment.current_location]
+                maxValue = max(q_values_of_state.values())
+                action = np.random.choice([k for k, v in q_values_of_state.items() if v == maxValue])
+            self.counter[self.environment.current_location][action]+=1
+            return action
+        if self.exploration=='softmax':
             q_values_of_state = self.q_table[self.environment.current_location]
-            maxValue = max(q_values_of_state.values())
-            action = np.random.choice([k for k, v in q_values_of_state.items() if v == maxValue])
-        self.counter[self.environment.current_location][action]+=1
-        return action
+            total=0
+            for value in q_values_of_state.values():
+                total+=np.exp(value*self.beta)
+            for (key,value) in q_values_of_state.items():
+                q_values_of_state[key]=np.exp(self.beta*value)/total
+            action=random.choices(list(q_values_of_state.keys()),weights=q_values_of_state.values(),k=1)[0]
+            return action
     
     def learn(self, old_state, reward, new_state, action):
         q_values_of_state = self.q_table[new_state]
