@@ -1,6 +1,6 @@
 import numpy as np
 
-class Kalman_agent_parallels_faux(): 
+class Kalman_agent_parallels(): 
     
     def __init__(self, environment, gamma=0.8, variance_ob=10,variance_tr=0.1,gamma_curiosity=0.4,curiosity_factor=10,v_ob_curiosity=20,v_tr_curiosity=10):
         self.environment = environment
@@ -30,8 +30,16 @@ class Kalman_agent_parallels_faux():
         get_curiosity=self.KF_table_curiosity[self.environment.current_location]
         get_cur_var=self.KF_table_cur_var[self.environment.current_location]
         dict_probas=dict()
+        dict_curiosity=dict()
         for move in ['UP','DOWN','LEFT','RIGHT']:
-            dict_probas[move]=np.random.normal(get_mean[move],np.sqrt(get_variance[move]))+self.curiosity_factor*np.random.normal(get_curiosity[move],np.sqrt(get_cur_var[move]))
+            dict_probas[move]=np.random.normal(get_mean[move],np.sqrt(get_variance[move]))
+            dict_curiosity[move]=np.random.normal(get_curiosity[move],np.sqrt(get_cur_var[move]))            
+        normalization_probas=1/max(dict_probas.values())
+        normalization_curiosity=1/max(dict_curiosity.values()) 
+        for move in ['UP','DOWN','LEFT','RIGHT']:
+            dict_probas[move]*=normalization_probas
+            dict_curiosity[move]*=normalization_curiosity
+            dict_probas[move]=(1-self.curiosity_factor)*dict_probas[move]+self.curiosity_factor*dict_curiosity[move]
         dic_values=list(dict_probas.values())
         action = list(dict_probas.keys())[dic_values.index(max(dic_values))]
         self.counter[self.environment.current_location][action]+=1
@@ -39,20 +47,23 @@ class Kalman_agent_parallels_faux():
     
 
     def learn(self, old_state, reward, new_state, action):
-        """Updates the mean and the variance using two parallel Kalman algorithms"""
         means_new_state = self.KF_table_mean[new_state]
         max_mean_in_new_state = max(means_new_state.values())
         current_mean = self.KF_table_mean[old_state][action]
-        curiosity_new_state=self.KF_table_curiosity[new_state]
-        max_curiosity_in_new_state=max(curiosity_new_state.values())
+        
         current_variance = self.KF_table_variance[old_state][action]
+        variance_new_state=self.KF_table_variance[new_state]
+        max_variance_in_new_state=max(variance_new_state.values())
+        
+        current_curiosity=self.KF_table_curiosity[old_state][action]
         current_cur_var=self.KF_table_cur_var[old_state][action]
         
         self.KF_table_mean[old_state][action] = ((current_variance+self.variance_tr)*(reward +self.gamma * max_mean_in_new_state)+(self.variance_ob*current_mean))/ (current_variance+self.variance_tr+self.variance_ob)
         self.KF_table_variance[old_state][action]=((current_variance+self.variance_tr)*self.variance_ob)/(current_variance+self.variance_ob+self.variance_tr)
         
-        self.KF_table_curiosity[old_state][action] = ((current_cur_var+self.v_tr_curiosity)*(current_variance+self.gamma_curiosity*max_curiosity_in_new_state)+(self.v_ob_curiosity*current_cur_var))/ (current_cur_var+self.v_tr_curiosity+self.v_ob_curiosity)
+        self.KF_table_curiosity[old_state][action] = ((current_cur_var+self.v_tr_curiosity)*(current_variance+self.gamma_curiosity*max_variance_in_new_state)+(self.v_ob_curiosity*current_curiosity))/ (current_cur_var+self.v_tr_curiosity+self.v_ob_curiosity)
         self.KF_table_cur_var[old_state][action]=((current_cur_var+self.v_tr_curiosity)*self.v_ob_curiosity)/(current_cur_var+self.v_ob_curiosity+self.v_tr_curiosity)
+        
         for move in ['UP','DOWN','LEFT','RIGHT']:
             if move != action : 
                 self.KF_table_variance[old_state][move]+=self.variance_tr

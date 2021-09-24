@@ -14,9 +14,9 @@ class BigState:
         # Set random start location for the agent
         self.current_location = (0,0)       
         # Set the reward for a specific transition
-        self.good_transition = (2,2,'DOWN')
+        self.good_transition = (3,3,'UP')
         #self.loop_transition=(4,4,'UP')
-        self.best_transition = (19,19,'UP')
+        self.best_transition = (18,18,'UP')
         self.terminal_actions = [self.good_transition,self.best_transition]
         self.values[(self.good_transition[0],self.good_transition[1])][self.good_transition[2]] = 10
         #self.values[(self.loop_transition[0],self.loop_transition[1])][self.loop_transition[2]]=10

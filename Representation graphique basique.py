@@ -55,15 +55,12 @@ class Graphique:
 					(self.MARGIN + self.HEIGHT)*row+self.MARGIN,
 					self.WIDTH,
 					self.HEIGHT])
-		self.DrawArrow(345,310,self.BLACK,angle=0)
-		self.DrawArrow(645,710,self.RED,angle=0)
-		self.DrawArrow(290,650,self.GREEN,angle=270)
-		label_1=self.font.render('+10',1,self.BLACK)
-		label_2=self.font.render('non final',1,self.RED)
+		self.DrawArrow(164,157,self.RED,angle=0)
+		self.DrawArrow(885,878,self.GREEN,angle=0)
+		label_1=self.font.render('+10',1,self.RED)
 		label_3=self.font.render('+100',1,self.GREEN)
-		self.screen.blit(label_1, (327, 250))
-		self.screen.blit(label_2, (613, 650))
-		self.screen.blit(label_3, (310, 610))
+		self.screen.blit(label_1, (147, 102))
+		self.screen.blit(label_3, (863, 821))
 	def show(self):
 		pygame.display.flip()
 
@@ -87,18 +84,15 @@ class Graphique:
         
         
         
-grid = [[0 for col in range(8)] for row in range(8)]
+grid = [[0 for col in range(20)] for row in range(20)]
 
 init = [0, 0]
 
-screen_size = 800
-cell_width = 96
-cell_height = 96
-cell_margin = 4
-grid[5][6]=1
-grid[5][5]=1
-grid[5][7]=1
-grid[6][5]=1
+screen_size = 1300
+cell_width = 45
+cell_height = 45
+cell_margin = 3
+
 
 gridworld = Graphique(screen_size,cell_width, cell_height, cell_margin,init, grid)
 gridworld.show()

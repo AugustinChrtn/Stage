@@ -12,7 +12,7 @@ class State:
             for y in range(self.width):
                 self.values[(x,y)] = {'UP':-1, 'DOWN':-1, 'LEFT':-1, 'RIGHT':-1} # Transition cost        
         # Set random start location for the agent
-        self.current_location = ( np.random.randint(self.height), np.random.randint(self.width))       
+        self.current_location = (0,0)       
         # Set the reward for a specific transition
         self.good_transition = (3,3,'UP')
         self.terminal_actions = [self.good_transition]
