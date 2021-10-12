@@ -2,7 +2,7 @@ import numpy as np
 
 class Kalman_agent(): 
     
-    def __init__(self, environment, gamma=0.8, variance_ob=1,variance_tr=0.01):
+    def __init__(self, environment, gamma=1, variance_ob=1,variance_tr=30000):
         self.environment = environment
         self.KF_table_mean = dict()
         self.KF_table_variance = dict()
@@ -35,7 +35,7 @@ class Kalman_agent():
         current_mean = self.KF_table_mean[old_state][action]
         current_variance = self.KF_table_variance[old_state][action]
         self.KF_table_mean[old_state][action] = ((current_variance+self.variance_tr)*(reward +self.gamma * max_mean_in_new_state)+(self.variance_ob*current_mean))/ (current_variance+self.variance_tr+self.variance_ob)
-        self.KF_table_variance[old_state][action]=((current_variance+self.variance_tr)*self.variance_ob)/(current_variance+self.variance_ob+self.variance_tr)
+        self.KF_table_variance[old_state][action]=((current_variance)*self.variance_ob)/(current_variance+self.variance_ob)
         for move in ['UP','DOWN','LEFT','RIGHT']:
             if move != action : 
                 self.KF_table_variance[old_state][move]+=self.variance_tr

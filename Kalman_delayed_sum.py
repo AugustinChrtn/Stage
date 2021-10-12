@@ -2,7 +2,7 @@ import numpy as np
 
 class Kalman_agent_delayed_sum(): 
     
-    def __init__(self, environment, gamma=0.8, variance_ob=10,variance_tr=0.1,curiosity_factor=3,gamma_curiosity=0.5,alpha=0.5):
+    def __init__(self, environment, gamma=1, variance_ob=1,variance_tr=40,curiosity_factor=1.8,gamma_curiosity=0.5,alpha=1):
         self.environment = environment
         self.KF_table_mean = dict()
         self.KF_table_variance = dict()
@@ -20,6 +20,7 @@ class Kalman_agent_delayed_sum():
         self.curiosity_factor=curiosity_factor
         self.gamma_curiosity=gamma_curiosity
         self.alpha=alpha
+    
     def choose_action(self):
         get_mean=self.KF_table_mean[self.environment.current_location]
         get_variance=self.KF_table_variance[self.environment.current_location]
@@ -41,7 +42,7 @@ class Kalman_agent_delayed_sum():
         max_variance_in_new_state=max(self.KF_table_variance[new_state].values())
         
         self.KF_table_mean[old_state][action] = ((current_variance+self.variance_tr)*(reward +self.gamma * max_mean_in_new_state)+(self.variance_ob*current_mean))/ (current_variance+self.variance_tr+self.variance_ob)
-        self.KF_table_variance[old_state][action]=((current_variance+self.variance_tr)*self.variance_ob)/(current_variance+self.variance_ob+self.variance_tr)        
+        self.KF_table_variance[old_state][action]=((current_variance)*self.variance_ob)/(current_variance+self.variance_ob)        
         self.KF_table_curiosity[old_state][action]=(1-self.alpha)*current_curiosity+self.alpha*(self.gamma_curiosity*max_variance_in_new_state)
         for move in ['UP','DOWN','LEFT','RIGHT']:
             if move != action : 

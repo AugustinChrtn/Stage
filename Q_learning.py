@@ -2,7 +2,7 @@ import numpy as np
 import random
 
 class Q_Agent():
-    def __init__(self, environment, epsilon=0.01, alpha=0.26, gamma=0.95,beta=1,exploration='softmax'):
+    def __init__(self, environment, beta=0.05, alpha=0.95, gamma=1, epsilon=0.01, exploration='softmax'):
         self.environment = environment
         self.q_table = dict()
         self.counter=dict()
@@ -26,7 +26,6 @@ class Q_Agent():
                 q_values_of_state = self.q_table[self.environment.current_location]
                 maxValue = max(q_values_of_state.values())
                 action = np.random.choice([k for k, v in q_values_of_state.items() if v == maxValue])
-            self.counter[self.environment.current_location][action]+=1
             return action
         if self.exploration=='softmax':
             q_values_of_state = self.q_table[self.environment.current_location]
@@ -37,7 +36,8 @@ class Q_Agent():
                 q_values_of_state[key]=np.exp(self.beta*value)/total
             action=random.choices(list(q_values_of_state.keys()),weights=q_values_of_state.values(),k=1)[0]
             return action
-    
+        self.counter[self.environment.current_location][action]+=1
+        
     def learn(self, old_state, reward, new_state, action):
         q_values_of_state = self.q_table[new_state]
         max_q_value_in_new_state = max(q_values_of_state.values())

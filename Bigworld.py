@@ -7,20 +7,15 @@ class BigState:
         self.height = 20
         self.width = 20
         self.grid = np.zeros((self.height, self.width))
+        self.final_states = {(3,3,'UP'):10,(18,18,'UP'):100 }
         self.values=dict()
         for x in range(self.height): # Loop through all possible grid spaces, create sub-dictionary for each
             for y in range(self.width):
                 self.values[(x,y)] = {'UP':-1, 'DOWN':-1, 'LEFT':-1, 'RIGHT':-1} # Transition cost        
-        # Set random start location for the agent
-        self.current_location = (0,0)       
-        # Set the reward for a specific transition
-        self.good_transition = (3,3,'UP')
-        #self.loop_transition=(4,4,'UP')
-        self.best_transition = (18,18,'UP')
-        self.terminal_actions = [self.good_transition,self.best_transition]
-        self.values[(self.good_transition[0],self.good_transition[1])][self.good_transition[2]] = 10
-        #self.values[(self.loop_transition[0],self.loop_transition[1])][self.loop_transition[2]]=10
-        self.values[(self.best_transition[0],self.best_transition[1])][self.best_transition[2]]=100
+        self.current_location = (0,0)     
+        self.first_location=(0,0)
+        for transition, reward in self.final_states.items():
+            self.values[(transition[0],transition[1])][transition[2]]=reward
         # Set available actions
         self.actions = ['UP', 'DOWN', 'LEFT', 'RIGHT']
               
@@ -42,4 +37,4 @@ class BigState:
         elif action == 'RIGHT':
             if last_location[1] != self.width - 1:
                 self.current_location = ( last_location[0], last_location[1] + 1)        
-        return reward, (last_location[0],last_location[1],action) in self.terminal_actions
+        return reward, (last_location[0],last_location[1],action) in self.final_states.keys()

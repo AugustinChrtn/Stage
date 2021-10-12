@@ -2,7 +2,7 @@ import numpy as np
 
 class Kalman_agent_parallels(): 
     
-    def __init__(self, environment, gamma=0.8, variance_ob=10,variance_tr=0.1,gamma_curiosity=0.4,curiosity_factor=10,v_ob_curiosity=20,v_tr_curiosity=10):
+    def __init__(self, environment, gamma=1, variance_ob=1,variance_tr=30000,gamma_curiosity=0.3,curiosity_factor=0.03,v_ob_curiosity=0.1,v_tr_curiosity=1):
         self.environment = environment
         self.KF_table_mean = dict()
         self.KF_table_variance = dict()
